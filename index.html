@@ -186,5 +186,27 @@ function deletePost(id){
 loadPosts();
 </script>
 
-</body>
+</body><!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyA-vh1Ri2GwMFDiz8gITsFsurOFrJBQYAw",
+  authDomain: "alshokar-d8a62.firebaseapp.com",
+  projectId: "alshokar-d8a62",
+  storageBucket: "alshokar-d8a62.firebasestorage.app",
+  messagingSenderId: "939782370734",
+  appId: "1:939782370734:web:d90e352c26841d9515c43f",
+  measurementId: "G-X76SH8YKM1"
+};
+
+firebase.initializeApp(firebaseConfig);
+
+const auth = firebase.auth();
+const db = firebase.firestore();
+const storage = firebase.storage();
+</script>
 </html>
