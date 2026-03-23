@@ -1,229 +1,109 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Al Shokar Social</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Al Shokar Social</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<style>
-body {
-    <div class="header">
-    AL SHOKAR
-</div>
-}
+    <style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        text-align: center;
+        margin: 0;
+        padding: 0;
+    }
 
-header {
-<style>
-    <head>
-<style>
-body {
-    font-family: Arial;
-    background-color: #f4f4f4;
-    text-align: center;
-}
+    .header {
+        background-color: black;
+        color: gold;
+        padding: 15px;
+        font-size: 22px;
+        font-weight: bold;
+    }
 
-.header {
-    background-color: black;
-    color: gold;
-    padding: 15px;
-}
-</style>
-</head>
+    .container {
+        margin-top: 50px;
+    }
 
-.header {
-    background-color: black;
-    color: gold;
-    padding: 15px;
-}
-</style>
-}
+    button {
+        padding: 10px 15px;
+        margin: 10px;
+        border: none;
+        background-color: #333;
+        color: white;
+        border-radius: 5px;
+        cursor: pointer;
+    }
 
-button {
-    padding: 8px;
-    margin: 5px;
-}
+    button:hover {
+        background-color: gold;
+        color: black;
+    }
 
-.post {
-    background: white;
-    margin: 10px;
-    padding: 10px;
-    border-radius: 10px;
-}
+    input[type="file"] {
+        margin: 10px;
+    }
 
-img {
-    width: 100%;
-    border-radius: 10px;
-}
-</style>
+    .post {
+        background: white;
+        margin: 10px;
+        padding: 10px;
+        border-radius: 10px;
+    }
+
+    img {
+        width: 100%;
+        border-radius: 10px;
+    }
+    </style>
+
 </head>
 
 <body>
 
-<header>AL SHOKAR</header>
-
-<div style="padding:10px">
-
-<button onclick="login()">Login with Google</button>
-<p id="user"></p>
-
-<input type="file" id="file">
-<button onclick="uploadImage()">Post</button>
-
-<div id="gallery"></div>
-
+<div class="header">
+    AL SHOKAR
 </div>
 
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<div class="container">
+    <button onclick="login()">Login with Google</button>
+    <p id="user"></p>
+
+    <input type="file" id="file">
+    <br>
+    <button onclick="uploadImage()">Post</button>
+
+    <div id="gallery"></div>
+</div>
 
 <script>
-const firebaseConfig = {
-  apiKey: "YOUR_KEY",
-  authDomain: "YOUR_DOMAIN",
-  projectId: "YOUR_ID",
-  storageBucket: "YOUR_BUCKET",
-};
-
-firebase.initializeApp(firebaseConfig);
-
-const storage = firebase.storage();
-const db = firebase.firestore();
-const auth = firebase.auth();
-
-// LOGIN
 function login() {
-    const provider = new firebase.auth.GoogleAuthProvider();
-    auth.signInWithPopup(provider);
+    alert("Login system not connected yet");
 }
 
-auth.onAuthStateChanged(user => {
-    if(user){
-        document.getElementById("user").innerText =
-        "Welcome " + user.displayName;
-    }
-});
-
-// UPLOAD
 function uploadImage() {
-    if(!auth.currentUser){
-        alert("Login first");
+    let file = document.getElementById("file").files[0];
+
+    if (!file) {
+        alert("Choose a file first!");
         return;
     }
 
-    const file = document.getElementById("file").files[0];
-    if(!file) return alert("Select photo");
+    let reader = new FileReader();
+    reader.onload = function(e) {
+        let img = document.createElement("img");
+        img.src = e.target.result;
 
-    const name = Date.now() + "_" + file.name;
-    const ref = storage.ref("posts/" + name);
+        let div = document.createElement("div");
+        div.className = "post";
+        div.appendChild(img);
 
-    ref.put(file).then(() => {
-        ref.getDownloadURL().then(url => {
+        document.getElementById("gallery").appendChild(div);
+    };
 
-            db.collection("posts").add({
-                image: url,
-                likes: 0,
-                comments: [],
-                user: auth.currentUser.displayName,
-                uid: auth.currentUser.uid,
-                time: Date.now()
-            });
-
-            loadPosts();
-        });
-    });
+    reader.readAsDataURL(file);
 }
-
-// LOAD POSTS
-function loadPosts(){
-    document.getElementById("gallery").innerHTML="";
-
-    db.collection("posts").orderBy("time","desc").get().then(snap=>{
-        snap.forEach(doc=>{
-            let d = doc.data();
-
-            let post = document.createElement("div");
-            post.className="post";
-
-            post.innerHTML = `
-                <b>${d.user}</b><br><br>
-                <img src="${d.image}"><br><br>
-
-                <button onclick="likePost('${doc.id}',${d.likes})">
-                ❤️ ${d.likes}</button>
-
-                ${auth.currentUser && auth.currentUser.uid===d.uid ?
-                `<button onclick="deletePost('${doc.id}')">🗑️</button>`:""}
-
-                <br><br>
-
-                <input id="c${doc.id}" placeholder="comment">
-                <button onclick="comment('${doc.id}')">Send</button>
-
-                <div id="com${doc.id}"></div>
-            `;
-
-            document.getElementById("gallery").appendChild(post);
-
-            d.comments.forEach(c=>{
-                document.getElementById("com"+doc.id).innerHTML +=
-                "<p>"+c+"</p>";
-            });
-        });
-    });
-}
-
-// LIKE
-function likePost(id,likes){
-    db.collection("posts").doc(id).update({
-        likes: likes+1
-    }).then(loadPosts);
-}
-
-// COMMENT
-function comment(id){
-    let text = document.getElementById("c"+id).value;
-
-    db.collection("posts").doc(id).get().then(doc=>{
-        let arr = doc.data().comments;
-        arr.push(text);
-
-        db.collection("posts").doc(id).update({
-            comments: arr
-        }).then(loadPosts);
-    });
-}
-
-// DELETE
-function deletePost(id){
-    db.collection("posts").doc(id).delete().then(loadPosts);
-}
-
-loadPosts();
 </script>
 
-</body><!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
-
-<script>
-const firebaseConfig = {
-  apiKey: "AIzaSyA-vh1Ri2GwMFDiz8gITsFsurOFrJBQYAw",
-  authDomain: "alshokar-d8a62.firebaseapp.com",
-  projectId: "alshokar-d8a62",
-  storageBucket: "alshokar-d8a62.firebasestorage.app",
-  messagingSenderId: "939782370734",
-  appId: "1:939782370734:web:d90e352c26841d9515c43f",
-  measurementId: "G-X76SH8YKM1"
-};
-
-firebase.initializeApp(firebaseConfig);
-
-const auth = firebase.auth();
-const db = firebase.firestore();
-const storage = firebase.storage();
-</script>
+</body>
 </html>
